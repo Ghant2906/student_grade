@@ -29,7 +29,7 @@ class Courses(models.Model):
 
 
 class Enrollments(models.Model):
-    class_field = models.ForeignKey(Classes, models.DO_NOTHING, db_column='class_id', blank=True, null=True)  # Field renamed because it was a Python reserved word.
+    class_field = models.ForeignKey(Classes, models.DO_NOTHING, db_column='class_id', blank=True, null=True) 
     student = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
 
     class Meta:

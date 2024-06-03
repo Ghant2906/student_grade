@@ -84,12 +84,12 @@ WSGI_APPLICATION = 'student_manager.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # Sử dụng PostgreSQL
-        'NAME': 'student_grade_management',  # Tên của database
-        'USER': 'ghant',      # Username để truy cập database
-        'PASSWORD': 'Thang2906',  # Mật khẩu truy cập
-        'HOST': '127.0.0.1',   # Địa chỉ máy chủ chứa database
-        'PORT': '5432',        # Cổng kết nối đến database
+        'ENGINE': 'django.db.backends.postgresql',  
+        'NAME': 'student_grade_management', 
+        'USER': 'ghant',     
+        'PASSWORD': 'Thang2906', 
+        'HOST': '127.0.0.1',  
+        'PORT': '5432',     
     }
 }
 
@@ -102,8 +102,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),  # Thời gian sống của token, điều chỉnh theo nhu cầu
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),    # Thời gian sống của refresh token
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600), 
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),   
 }
 
 # Password validation

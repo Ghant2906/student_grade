@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Users
+from .models import Users, Classes, Courses, Grades
 from rest_framework.exceptions import ValidationError
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,3 +22,20 @@ class RegisterSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=255)
     avatar_url = serializers.CharField(max_length=255)
     student_code = serializers.CharField(max_length=255)
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Courses
+        fields = '__all__'
+
+class ClassesSeriralizer(serializers.ModelSerializer):
+    course = CourseSerializer(read_only=True)
+    class Meta:
+        model = Classes
+        fields = '__all__'
+
+class GradeSerializer(serializers.ModelSerializer):
+    course = CourseSerializer(source='enrollment.class_field.course', read_only=True)
+    class Meta:
+        model = Grades
+        fields = ['course', 'midterm', 'final', 'additional_grade_1', 'additional_grade_2', 'additional_grade_3']
