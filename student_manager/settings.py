@@ -93,6 +93,19 @@ DATABASES = {
     }
 }
 
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),  # Thời gian sống của token, điều chỉnh theo nhu cầu
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=90),    # Thời gian sống của refresh token
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
