@@ -16,15 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClasses, GetClassByLecturer, GetStudentByCodeOrName, GetCourseAndGradeByStudent
+from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI, GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', UsersAPI.as_view()),
-    path('login/', LoginAPI.as_view()),
-    path('register/', RegisterAPI.as_view()),
-    path('lecturer/<int:instructor_id>/classes/', GetClassByLecturer.as_view(), name='get-class-by-lecturer'),
-    path('classes/<int:class_id>/students/', GetStudentsByClasses.as_view(), name='get-students-by-lecturer'),
-    path('student/<str:student_code_or_name>/', GetStudentByCodeOrName.as_view(), name='get-student-by-code-or-name'),
-    path('course/<int:student_id>/', GetCourseAndGradeByStudent.as_view(), name='get-course-by-student'),
+    path('api/login/', LoginAPI.as_view()),
+    path('api/register/', RegisterAPI.as_view()),
+    path('api/lecturer/<int:instructor_id>/classes/', GetClassByLecturerAPI.as_view(), name='get-class-by-lecturer'),
+    path('api/classes/<int:class_id>/students/', GetStudentsByClassesAPI.as_view(), name='get-students-by-lecturer'),
+    path('api/student/<str:student_code_or_name>/', GetStudentByCodeOrNameAPI.as_view(), name='get-student-by-code-or-name'),
+    path('api/course/<int:student_id>/', GetCourseAndGradeByStudentAPI.as_view(), name='get-course-by-student'),
+    path('api/upload-csv/<int:class_id>/', UploadGradesCSVAPI.as_view()),
 ]
