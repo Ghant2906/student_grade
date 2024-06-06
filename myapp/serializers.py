@@ -13,8 +13,8 @@ class LoginSerializer(serializers.Serializer):
 
 
 def validate_email_domain(value):
-    if not value.endswith('@donga.vn'):
-        raise ValidationError("Email phải có đuôi '@donga.vn'.")
+    if not value.endswith('@donga.edu.vn'):
+        raise ValidationError("Email phải có đuôi '@donga.edu.vn'.")
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255, validators=[validate_email_domain])

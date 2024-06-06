@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI, GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI
+from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI
+from myapp.views import  GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI, SendMailAPI, LockGradeAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +29,6 @@ urlpatterns = [
     path('api/student/<str:student_code_or_name>/', GetStudentByCodeOrNameAPI.as_view(), name='get-student-by-code-or-name'),
     path('api/course/<int:student_id>/', GetCourseAndGradeByStudentAPI.as_view(), name='get-course-by-student'),
     path('api/upload-csv/<int:class_id>/', UploadGradesCSVAPI.as_view()),
+    path('api/send-mail/', SendMailAPI.as_view()),
+    path('api/lock-grade/', LockGradeAPI.as_view()),
 ]

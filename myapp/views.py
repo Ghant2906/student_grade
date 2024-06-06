@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from myapp.models import Users, Classes, Enrollments, Grades
+from myapp.models import Users, Classes, Enrollments, Grades, Courses
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ClassesSeriralizer, GradeSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -7,10 +7,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-
 import pandas as pd
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser
+from django.core.mail import send_mail
 
 class UsersAPI(APIView):
     def get(self, request):
@@ -100,7 +100,85 @@ class UploadGradesCSVAPI(APIView):
                         'additional_grade_1': float(row.get('additional_grade_1')),
                         'additional_grade_2': float(row.get('additional_grade_2')),
                         'additional_grade_3': float(row.get('additional_grade_3')),
-                        'draft': True
+                        'draft': True,
+                        'locked': False
                     }
                 )
         return Response({"message": "Grades uploaded successfully"}, status=status.HTTP_201_CREATED)
+
+class LockGradeAPI(APIView):
+    def get_student_email_by_grade_id(self, grade_id):
+        enrollments_id = Grades.objects.get(pk=grade_id).enrollment_id
+        student_id = Enrollments.objects.get(pk=enrollments_id).student_id
+        email = Users.objects.get(pk=student_id).email
+        return email
+    
+    def get_course_name_by_grade_id(self, grade_id):
+        enrollments_id = Grades.objects.get(pk=grade_id).enrollment_id
+        class_id = Enrollments.objects.get(pk=enrollments_id).class_field_id
+        course_id = Classes.objects.get(pk=class_id).course_id
+        course_name = Courses.objects.get(pk=course_id).name
+        return course_name
+    
+    def post(self, request):
+        grade_id = request.data.get('grade_id')
+        grade = get_object_or_404(Grades, pk=grade_id)
+        grade.locked = True
+        grade.draft = False
+        grade.save()
+
+        email_student = self.get_student_email_by_grade_id(grade_id)
+        course_name = self.get_course_name_by_grade_id(grade_id)
+        subject = 'Thông báo đã có điểm môn ' + course_name
+        message = 'Thông báo đã có điểm chi tiết của môn ' + course_name + ', sinh viên có thể vào xem điểm.'
+        send_mail(
+                subject,
+                message,    
+                'thaithang2906@gmail.com',
+                [email_student],
+                fail_silently=False,
+            )
+        return Response({"message": "Grade locked and Email sent successfully"}, status=status.HTTP_200_OK)
+    
+class SendMailAPI(APIView):
+    def get_student_emails_by_class(self, class_id):
+        try:
+            class_instance = Classes.objects.get(pk=class_id)  
+            enrollments = Enrollments.objects.filter(class_field=class_instance)
+            user_ids = enrollments.values_list('student', flat=True)
+            emails = Users.objects.filter(id__in=user_ids).values_list('email', flat=True)
+            return list(emails)
+        except Classes.DoesNotExist:
+            return []
+        
+    def lock_grades_by_class(self, class_id):
+        class_instance = get_object_or_404(Classes, pk=class_id)
+        enrollments_list = Enrollments.objects.filter(class_field=class_instance)
+        enrollments_id_list = enrollments_list.values_list('id', flat=True)
+        grade_list = Grades.objects.filter(enrollment_id__in=enrollments_id_list)
+        for grade in grade_list:
+            grade.draft = False
+            grade.locked = True
+            grade.save()
+        return True
+    
+    def post(self, request):
+        class_id = request.data.get('class_id')
+        self.lock_grades_by_class(class_id)
+        class_instance = get_object_or_404(Classes, pk=class_id)
+        course_name = class_instance.course.name
+        subject = 'Thông báo đã có điểm môn ' + course_name
+        message = 'Thông báo đã có điểm chi tiết của môn ' + course_name + ', sinh viên có thể vào xem điểm.'
+        recipient_list = self.get_student_emails_by_class(class_id)
+        if recipient_list:
+            send_mail(
+                subject,
+                message,    
+                'thaithang2906@gmail.com',
+                recipient_list,
+                fail_silently=False,
+            )
+            return Response({"success": "Email sent successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "No emails found or class does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        
