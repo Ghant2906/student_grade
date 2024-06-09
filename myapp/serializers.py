@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = '__all__'
+        fields = ['id', 'email', 'full_name', 'studen_code', 'role', 'avatar_url', 'is_active']
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
@@ -28,6 +28,7 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Courses
         fields = '__all__'
 
+
 class ClassesSeriralizer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
     class Meta:
@@ -39,3 +40,10 @@ class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grades
         fields = ['course', 'midterm', 'final', 'additional_grade_1', 'additional_grade_2', 'additional_grade_3']
+
+class StudentGradeSerializer(serializers.ModelSerializer):
+    course = CourseSerializer(source='enrollment.class_field.course', read_only=True)
+    student = UserSerializer(source='enrollment.student', read_only=True)
+    class Meta:
+        model = Grades
+        fields = ['student', 'course', 'midterm', 'final', 'additional_grade_1', 'additional_grade_2', 'additional_grade_3']

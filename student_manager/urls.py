@@ -26,7 +26,7 @@ urlpatterns = [
     path('api/register/', RegisterAPI.as_view()),
     path('api/lecturer/<int:instructor_id>/classes/', GetClassByLecturerAPI.as_view(), name='get-class-by-lecturer'),
     path('api/classes/<int:class_id>/students/', GetStudentsByClassesAPI.as_view(), name='get-students-by-lecturer'),
-    path('api/student/<str:student_code_or_name>/', GetStudentByCodeOrNameAPI.as_view(), name='get-student-by-code-or-name'),
+    path('api/classes/<int:class_id>/student/<str:student_code_or_name>/', GetStudentByCodeOrNameAPI.as_view(), name='get-student-by-code-or-name'),
     path('api/course/<int:student_id>/', GetCourseAndGradeByStudentAPI.as_view(), name='get-course-by-student'),
     path('api/upload-csv/<int:class_id>/', UploadGradesCSVAPI.as_view()),
     path('api/send-mail/', SendMailAPI.as_view()),

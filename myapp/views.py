@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from myapp.models import Users, Classes, Enrollments, Grades, Courses
-from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ClassesSeriralizer, GradeSerializer
+from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ClassesSeriralizer, GradeSerializer, StudentGradeSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -25,7 +25,7 @@ class LoginAPI(APIView):
             return Response("du lieu gui len sai roi", status=status.HTTP_400_BAD_REQUEST)
         email = data_login.data['email']
         password = data_login.data['password']
-        user_info = Users.objects.filter(email=email, password=password, role_id=3).values(
+        user_info = Users.objects.filter(email=email, password=password).values(
             'id', 'email', 'full_name', 'avatar_url', 'created_at').first()
         if user_info is None:
             return Response("tai khoan hoac mat khau khong chinh xac", status=status.HTTP_400_BAD_REQUEST)
@@ -67,11 +67,13 @@ class GetClassByLecturerAPI(APIView):
         return Response(serializer.data)
     
 class GetStudentByCodeOrNameAPI(APIView):
-    def get (self, request, student_code_or_name):
+    def get (self, request, class_id, student_code_or_name):
         users = Users.objects.filter(
             (Q(studen_code=student_code_or_name) | Q(full_name=student_code_or_name)) & Q(role_id=3)
         )
-        serializer = UserSerializer(users, many=True)
+        enrollments = Enrollments.objects.filter(student__in=users, class_field_id=class_id)
+        grade_of_students = Grades.objects.filter(enrollment__in=enrollments)
+        serializer = StudentGradeSerializer(grade_of_students, many=True)
         return Response(serializer.data)
 
 class GetCourseAndGradeByStudentAPI(APIView):
