@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI
-from myapp.views import  GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI, LockGradeAndSendMail
+from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI, GetCommentByPostAPI, CreateCommentAPI
+from myapp.views import  GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI, LockGradeAndSendMail, GetAllPostAPI, CreatePostAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -54,4 +54,20 @@ urlpatterns = [
     ### input: trong body gui class_id bang id lop do
     ### output: message khoa diem va sen mail thanh cong
     path('api/lock_grade/', LockGradeAndSendMail.as_view()),
+    ### api lay toan bo bai viet
+    ### input: none
+    ### output: [{id, author{id, email, full_name, studen_code, role, avatar_url}, title, content, created_at, updated_at, class_field}, [{id, author{id, email, full_name, studen_code, role, avatar_url}, title, content, created_at, updated_at, class_field}, ...]
+    path('api/post/', GetAllPostAPI.as_view()),
+    ### api them bai viet
+    ### input: trong body gui author_id bang id user, title, content
+    ### output: thong tin bai viet moi duoc tao
+    path('api/create-post/', CreatePostAPI.as_view()),
+    ### api lay comment theo bai viet
+    ### input: thay <int:post_id> bang id bai viet
+    ### output: [{id, author{id, email, full_name, studen_code, role, avatar_url}, content, created_at, post}, {id, author{id, email, full_name, studen_code, role, avatar_url}, content, created_at, post}, ...]
+    path('api/post/<int:post_id>/comment/', GetCommentByPostAPI.as_view()),
+    ### api them comment
+    ### input: trong body gui author_id bang id user, content, post_id bang id bai viet
+    ### output: thong tin comment duoc tao
+    path('api/create-comment/', CreateCommentAPI.as_view()),
 ]

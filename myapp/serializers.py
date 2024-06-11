@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Users, Classes, Courses, Grades
+from .models import Users, Classes, Courses, Grades, Post, Comments
 from rest_framework.exceptions import ValidationError
 
 class UserSerializer(serializers.ModelSerializer):
@@ -47,3 +47,15 @@ class StudentGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grades
         fields = ['student', 'course', 'midterm', 'final', 'additional_grade_1', 'additional_grade_2', 'additional_grade_3']
+
+class PostSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    class Meta:
+        model = Comments
+        fields = '__all__'

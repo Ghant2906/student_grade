@@ -83,3 +83,26 @@ class Users(models.Model):
     class Meta:
         managed = False
         db_table = 'users'
+
+class Post(models.Model):
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    created_at = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(blank=True, null=True)
+    author = models.ForeignKey('Users', models.DO_NOTHING)
+    class_field = models.ForeignKey(Classes, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'post'
+
+
+class Comments(models.Model):
+    post = models.ForeignKey('Post', models.DO_NOTHING)
+    content = models.TextField()
+    created_at = models.DateTimeField(blank=True, null=True)
+    author = models.ForeignKey('Users', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'comments'

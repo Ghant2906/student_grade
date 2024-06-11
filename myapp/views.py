@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
-from myapp.models import Users, Classes, Enrollments, Grades, Courses
-from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ClassesSeriralizer, GradeSerializer, StudentGradeSerializer
+from myapp.models import Users, Classes, Enrollments, Grades, Post, Comments
+from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ClassesSeriralizer, GradeSerializer, StudentGradeSerializer, PostSerializer, CommentSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -151,3 +151,40 @@ class LockGradeAndSendMail(APIView):
         else:
             return Response({"error": "No emails found or class does not exist."}, status=status.HTTP_404_NOT_FOUND)
         
+class GetAllPostAPI(APIView):
+    def get(self, request):
+        posts = Post.objects.all()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+    
+class CreatePostAPI(APIView):
+    def post(self, request):
+        data = request.data
+        author = get_object_or_404(Users, pk=data['author_id'])
+        post = Post.objects.create(
+            title=data['title'],
+            content=data['content'],
+            author=author
+        )
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+class GetCommentByPostAPI(APIView):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, pk=post_id)
+        comments = Comments.objects.filter(post=post)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+    
+class CreateCommentAPI(APIView):
+    def post(self, request):
+        data = request.data
+        author = get_object_or_404(Users, pk=data['author_id'])
+        post = get_object_or_404(Post, pk=data['post_id'])
+        comment = Comments.objects.create(
+            content=data['content'],
+            author=author,
+            post=post
+        )
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)

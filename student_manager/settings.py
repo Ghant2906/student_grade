@@ -86,21 +86,21 @@ WSGI_APPLICATION = 'student_manager.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',  
-        'NAME': 'student_grade_management', 
-        'USER': 'ghant',     
-        'PASSWORD': 'Thang2906', 
-        'HOST': '127.0.0.1',  
-        'PORT': '5432',     
-    }
-}
-
-
 # DATABASES = {
-#     'default': env.db(),
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',  
+#         'NAME': 'student_grade_management', 
+#         'USER': 'ghant',     
+#         'PASSWORD': 'Thang2906', 
+#         'HOST': '127.0.0.1',  
+#         'PORT': '5432',     
+#     }
 # }
+
+
+DATABASES = {
+    'default': env.db(),
+}
 
 from datetime import timedelta
 
