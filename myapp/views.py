@@ -3,7 +3,7 @@ from myapp.models import Users, Classes, Enrollments, Grades, Post, Comments
 from .serializers import UserSerializer, LoginSerializer, RegisterSerializer, ClassesSeriralizer, GradeSerializer, StudentGradeSerializer, PostSerializer, CommentSerializer
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -11,8 +11,43 @@ import pandas as pd
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser
 from django.core.mail import send_mail
+from functools import wraps
+
+# def token_required(f):
+#         @wraps(f)
+#         def decorated(*args, **kwargs):
+#             request = args[1]
+#             token = request.headers.get('Authorization')
+#             if not token:
+#                 return Response("khong tim thay token", status=status.HTTP_400_BAD_REQUEST)
+            
+#             try:
+#                 decoded_token = AccessToken(token)
+#                 user_id = decoded_token['user_id']
+#                 user = Users.objects.get(id=user_id)
+#                 if user is None:
+#                     return Response("khong tim thay user", status=status.HTTP_400_BAD_REQUEST)
+#                 print("user_id::", user_id)
+#             except Exception as e:
+#                 return Response(str(e), status=status.HTTP_403_FORBIDDEN)
+#         return decorated
+
+class MiddlewareUserAPI(APIView):
+
+    def get(self, request):
+        token = request.headers.get('Authorization')
+        if not token:
+            return Response("khong tim thay token", status=status.HTTP_400_BAD_REQUEST)
+        decoded_token = AccessToken(token)
+        user_id = decoded_token['user_id']
+        user = Users.objects.get(id=user_id)
+        if user is None:
+            return Response("khong tim thay user", status=status.HTTP_400_BAD_REQUEST)
+        print("user_id::", user_id)
+        return "oke"
 
 class UsersAPI(APIView):
+    # @token_required
     def get(self, request):
         users = Users.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -26,7 +61,7 @@ class LoginAPI(APIView):
         email = data_login.data['email']
         password = data_login.data['password']
         user_info = Users.objects.filter(email=email, password=password).values(
-            'id', 'email', 'full_name', 'avatar_url', 'created_at').first()
+            'id', 'email', 'full_name', 'avatar_url', 'created_at', 'role_id', 'studen_code').first()
         if user_info is None:
             return Response("tai khoan hoac mat khau khong chinh xac", status=status.HTTP_400_BAD_REQUEST)
         
@@ -92,7 +127,8 @@ class UploadGradesCSVAPI(APIView):
 
         with transaction.atomic():
             for index, row in data.iterrows():
-                student_id = row['student_id']
+                student_code = row['student_code']
+                student_id = Users.objects.get(studen_code=student_code).id
                 enrollment = Enrollments.objects.get(student_id=student_id, class_field_id=class_id)
                 Grades.objects.update_or_create(
                     enrollment=enrollment,

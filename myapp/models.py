@@ -13,6 +13,7 @@ class Classes(models.Model):
     instructor = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
     year = models.IntegerField(blank=True, null=True)
     semester = models.IntegerField(blank=True, null=True)
+    name = models.CharField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -87,8 +88,8 @@ class Users(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    updated_at = models.DateTimeField(blank=True, null=True, auto_now=True)
     author = models.ForeignKey('Users', models.DO_NOTHING)
     class_field = models.ForeignKey(Classes, models.DO_NOTHING, blank=True, null=True)
 
