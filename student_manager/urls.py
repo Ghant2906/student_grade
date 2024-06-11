@@ -17,18 +17,41 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI
-from myapp.views import  GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI, SendMailAPI, LockGradeAPI
+from myapp.views import  GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI, LockGradeAndSendMail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', UsersAPI.as_view()),
+    ### api dang nhap
+    ### input: email, password
+    ### output: refresh token, access token, userInfo
     path('api/login/', LoginAPI.as_view()),
+    ### api dang ky
+    ### input: email, password, full_name, avatar_url, student_code
+    ### output: id user, message successfully
     path('api/register/', RegisterAPI.as_view()),
+    ### api lay danh sach lop hoc giang vien do dam nhan
+    ### input: thay <int:instructor_id> bang id cua giang vien
+    ### output: [{id, course{id, name, description}, year, semester, instructor}, {id, course{id, name, description}, year, semester, instructor}, ...]
     path('api/lecturer/<int:instructor_id>/classes/', GetClassByLecturerAPI.as_view(), name='get-class-by-lecturer'),
+    ### api lay danh sach sinh vien trong lop do
+    ### input: thay <int:class_id> bang id lop do
+    ### output: id, email, full_name, studen_code, role, avatar_url
     path('api/classes/<int:class_id>/students/', GetStudentsByClassesAPI.as_view(), name='get-students-by-lecturer'),
+    ### api lay thong tin va diem cua user theo lop va ma sinh vien hoac ten sinh vien
+    ### input: thay <int:class_id> bang id lop va <str:student_code_or_name> bang ten hoac ma sinh vien
+    ### output: student{id, email, full_name, studen_code, role, avatar_url}, course{id, name, description}, midterm, final, additional_grade_1, additional_grade_2, additional_grade_3
     path('api/classes/<int:class_id>/student/<str:student_code_or_name>/', GetStudentByCodeOrNameAPI.as_view(), name='get-student-by-code-or-name'),
+    ### api lay toan bo thong tin course va diem cua course do theo sinh vien
+    ### input: thay <int:student_id> bang id sinh vien
+    ### output: [{course{id, name, description}, midterm, final, additional_grade_1, additional_grade_2, additional_grade_3}, {course{id, name, description}, midterm, final, additional_grade_1, additional_grade_2, additional_grade_3}, ...]
     path('api/course/<int:student_id>/', GetCourseAndGradeByStudentAPI.as_view(), name='get-course-by-student'),
+    ### api cap nhat diem sinh vien bang file csv
+    ### input: gui file csv trong body voi ten "file", thay <int:class_id> bang id lop do
+    ### output: message successfully
     path('api/upload-csv/<int:class_id>/', UploadGradesCSVAPI.as_view()),
-    path('api/send-mail/', SendMailAPI.as_view()),
-    path('api/lock-grade/', LockGradeAPI.as_view()),
+    ### api gui mail
+    ### input: trong body gui class_id bang id lop do
+    ### output: message khoa diem va sen mail thanh cong
+    path('api/lock_grade/', LockGradeAndSendMail.as_view()),
 ]

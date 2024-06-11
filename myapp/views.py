@@ -108,41 +108,8 @@ class UploadGradesCSVAPI(APIView):
                 )
         return Response({"message": "Grades uploaded successfully"}, status=status.HTTP_201_CREATED)
 
-class LockGradeAPI(APIView):
-    def get_student_email_by_grade_id(self, grade_id):
-        enrollments_id = Grades.objects.get(pk=grade_id).enrollment_id
-        student_id = Enrollments.objects.get(pk=enrollments_id).student_id
-        email = Users.objects.get(pk=student_id).email
-        return email
     
-    def get_course_name_by_grade_id(self, grade_id):
-        enrollments_id = Grades.objects.get(pk=grade_id).enrollment_id
-        class_id = Enrollments.objects.get(pk=enrollments_id).class_field_id
-        course_id = Classes.objects.get(pk=class_id).course_id
-        course_name = Courses.objects.get(pk=course_id).name
-        return course_name
-    
-    def post(self, request):
-        grade_id = request.data.get('grade_id')
-        grade = get_object_or_404(Grades, pk=grade_id)
-        grade.locked = True
-        grade.draft = False
-        grade.save()
-
-        email_student = self.get_student_email_by_grade_id(grade_id)
-        course_name = self.get_course_name_by_grade_id(grade_id)
-        subject = 'Thông báo đã có điểm môn ' + course_name
-        message = 'Thông báo đã có điểm chi tiết của môn ' + course_name + ', sinh viên có thể vào xem điểm.'
-        send_mail(
-                subject,
-                message,    
-                'thaithang2906@gmail.com',
-                [email_student],
-                fail_silently=False,
-            )
-        return Response({"message": "Grade locked and Email sent successfully"}, status=status.HTTP_200_OK)
-    
-class SendMailAPI(APIView):
+class LockGradeAndSendMail(APIView):
     def get_student_emails_by_class(self, class_id):
         try:
             class_instance = Classes.objects.get(pk=class_id)  
@@ -180,7 +147,7 @@ class SendMailAPI(APIView):
                 recipient_list,
                 fail_silently=False,
             )
-            return Response({"success": "Email sent successfully."}, status=status.HTTP_200_OK)
+            return Response({"success": "Lock grade and email sent successfully."}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "No emails found or class does not exist."}, status=status.HTTP_404_NOT_FOUND)
         
