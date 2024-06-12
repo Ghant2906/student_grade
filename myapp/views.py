@@ -43,7 +43,6 @@ class MiddlewareUserAPI(APIView):
         user = Users.objects.get(id=user_id)
         if user is None:
             return Response("khong tim thay user", status=status.HTTP_400_BAD_REQUEST)
-        print("user_id::", user_id)
         return "oke"
 
 class UsersAPI(APIView):
@@ -143,7 +142,31 @@ class UploadGradesCSVAPI(APIView):
                     }
                 )
         return Response({"message": "Grades uploaded successfully"}, status=status.HTTP_201_CREATED)
-
+    
+class InsertGradeAPI(APIView):
+    def post(self, request):
+        data = request.data
+        user_id = data.get('user_id')
+        class_id = data.get('class_id')
+        enrollment_id = Enrollments.objects.get(student_id=user_id, class_field_id=class_id).id
+        midterm = data.get('midterm')
+        final = data.get('final')
+        additional_grade_1 = data.get('additional_grade_1')
+        additional_grade_2 = data.get('additional_grade_2')
+        additional_grade_3 = data.get('additional_grade_3')
+        grade = Grades.objects.update_or_create(
+            enrollment_id=enrollment_id,
+            defaults={
+                        'midterm': midterm,
+                        'final': final,
+                        'additional_grade_1': additional_grade_1,
+                        'additional_grade_2': additional_grade_2,
+                        'additional_grade_3': additional_grade_3,
+                        'draft': True,
+                        'locked': False
+                    }
+        )
+        return Response({"OK"}, status=status.HTTP_201_CREATED)
     
 class LockGradeAndSendMail(APIView):
     def get_student_emails_by_class(self, class_id):

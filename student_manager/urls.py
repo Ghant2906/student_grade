@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI, GetCommentByPostAPI, CreateCommentAPI
+from myapp.views import UsersAPI, LoginAPI, RegisterAPI, GetStudentsByClassesAPI, GetClassByLecturerAPI, GetCommentByPostAPI, CreateCommentAPI, InsertGradeAPI
 from myapp.views import  GetStudentByCodeOrNameAPI, GetCourseAndGradeByStudentAPI, UploadGradesCSVAPI, LockGradeAndSendMail, GetAllPostAPI, CreatePostAPI
 
 urlpatterns = [
@@ -50,6 +50,10 @@ urlpatterns = [
     ### input: gui file csv trong body voi ten "file", thay <int:class_id> bang id lop do
     ### output: message successfully
     path('api/upload-csv/<int:class_id>/', UploadGradesCSVAPI.as_view()),
+    ### api cap nhat diem sinh vien
+    ### input: trong body gui user_id, class_id, midterm, final, additional_grade_1, additional_grade_2, additional_grade_3
+    ### output: message OK
+    path('api/insert-grade/', InsertGradeAPI.as_view()),
     ### api gui mail
     ### input: trong body gui class_id bang id lop do
     ### output: message khoa diem va sen mail thanh cong
